@@ -1,8 +1,8 @@
 # Run this script from home folder
 
 # configs variables
-NAME=accounts-password-client-side # Set the bundle file name
-PACKAGE=accounts-password
+NAME=accounts-facebook-client-side # Set the bundle file name
+PACKAGE=accounts-facebook
 DIST_FOLDER=dist # The folder that the bundled files will be copy in to
 
 # run time variables
@@ -39,9 +39,21 @@ rm -rf $OUTPUT_PATH
 mkdir $OUTPUT_PATH
 
 # Concat files
-cat "$PACKAGES_PATH/sha.js" >> $OUTPUT_PATH/$NAME.bundle.js
-cat "$PACKAGES_PATH/srp.js" >> $OUTPUT_PATH/$NAME.bundle.js
-cat "$PACKAGES_PATH/accounts-password.js" >> $OUTPUT_PATH/$NAME.bundle.js
+# cat "$PACKAGES_PATH/meteor.js" >> $OUTPUT_PATH/$NAME.bundle.js
+cat "$PACKAGES_PATH/reactive-var.js" >> $OUTPUT_PATH/$NAME.bundle.js
+cat "$PACKAGES_PATH/observe-sequence.js" >> $OUTPUT_PATH/$NAME.bundle.js
+cat "$PACKAGES_PATH/htmljs.js" >> $OUTPUT_PATH/$NAME.bundle.js
+cat "$PACKAGES_PATH/jquery.js" >> $OUTPUT_PATH/$NAME.bundle.js
+cat "$PACKAGES_PATH/blaze.js" >> $OUTPUT_PATH/$NAME.bundle.js
+cat "$PACKAGES_PATH/spacebars.js" >> $OUTPUT_PATH/$NAME.bundle.js
+cat "$PACKAGES_PATH/random.js" >> $OUTPUT_PATH/$NAME.bundle.js
+cat "$PACKAGES_PATH/templating.js" >> $OUTPUT_PATH/$NAME.bundle.js
+cat "$PACKAGES_PATH/url.js" >> $OUTPUT_PATH/$NAME.bundle.js
+cat "$PACKAGES_PATH/reload.js" >> $OUTPUT_PATH/$NAME.bundle.js
+cat "$PACKAGES_PATH/oauth.js" >> $OUTPUT_PATH/$NAME.bundle.js
+cat "$PACKAGES_PATH/accounts-oauth.js" >> $OUTPUT_PATH/$NAME.bundle.js
+cat "$PACKAGES_PATH/facebook.js" >> $OUTPUT_PATH/$NAME.bundle.js
+cat "$PACKAGES_PATH/accounts-facebook.js" >> $OUTPUT_PATH/$NAME.bundle.js
 cat "$PACKAGES_PATH/global-imports.js" >> $OUTPUT_PATH/$NAME.bundle.js
 
 # Minify
@@ -52,4 +64,4 @@ npm install uglify-js
 cp $OUTPUT_PATH/$NAME.bundle.* $DIST_PATH
 
 # Cleanup
-rm -rf $BUNDLER_PATH $OUTPUT_PATH
+# rm -rf $BUNDLER_PATH $OUTPUT_PATH
