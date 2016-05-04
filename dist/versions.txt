@@ -1,3 +1,5 @@
+
+# accounts-facebook client-side bundle
 accounts-base          added, version 1.2.7   
 accounts-facebook      added, version 1.0.9
 accounts-oauth         added, version 1.1.12
@@ -8,3 +10,35 @@ oauth                  added, version 1.1.10
 oauth2                 added, version 1.1.9
 rate-limit             added, version 1.0.4
 service-configuration  added, version 1.0.9
+
+# accounts-password client-side bundle
+accounts-base          added, version 1.2.7   
+accounts-password      added, version 1.1.8
+ddp-rate-limiter       added, version 1.0.4
+email                  added, version 1.0.12
+localstorage           added, version 1.0.9
+npm-bcrypt             added, version 0.8.5
+rate-limit             added, version 1.0.4
+service-configuration  added, version 1.0.9
+sha                    added, version 1.0.7
+srp                    added, version 1.0.8
+
+# okland:accounts-phone client-side bundle
+accounts-base          added, version 1.2.7   
+ddp-rate-limiter       added, version 1.0.4
+email                  added, version 1.0.12
+localstorage           added, version 1.0.9
+npm-bcrypt             added, version 0.7.8_2
+okland:accounts-phone  added, version 0.0.21
+rate-limit             added, version 1.0.4
+service-configuration  added, version 1.0.9
+sha                    added, version 1.0.7
+srp                    added, version 1.0.8
+
+# accounts-base client-side bundle
+accounts-base          added, version 1.2.7   
+ddp-rate-limiter       added, version 1.0.4
+localstorage           added, version 1.0.9
+rate-limit             added, version 1.0.4
+service-configuration  added, version 1.0.9
+
