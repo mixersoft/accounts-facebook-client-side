@@ -4,13 +4,13 @@ Use Meteor's [accounts-password][meteor-accounts] package with [meteor-client-si
 
 ### Installation
 
-`bower install accounts-password-client-side` 
+`bower install accounts-facebook-client-side` 
 
 Add to your index.html:
 
 ```
 <script src="bower_components/accounts-base-client-side/dist/accounts-base-client-side.bundle.min.js"></script>
-<script src="bower_components/accounts-password-client-side/dist/accounts-password-client-side.bundle.min.js"></script>
+<script src="bower_components/accounts-facebook-client-side/dist/accounts-facebook-client-side.bundle.min.js"></script>
 ```
 
 

@@ -1,8 +1,8 @@
 # Run this script from home folder
 
 # configs variables
-NAME=accounts-password-client-side # Set the bundle file name
-PACKAGE=accounts-password
+NAME=accounts-facebook-client-side # Set the bundle file name
+PACKAGE=accounts-facebook
 DIST_FOLDER=dist # The folder that the bundled files will be copy in to
 
 # run time variables
@@ -13,7 +13,7 @@ BUNDLER_TEMP="tmp-$NAME-bundler"
 BUNDLER_PATH=$DIST_PATH/$BUNDLER_TEMP
 
 
-# Ansure that the dist folder exists
+# Ensure that the dist folder exists
 mkdir -p $DIST_PATH
 
 # Create temp meteor project
@@ -41,7 +41,7 @@ mkdir $OUTPUT_PATH
 # Concat files
 cat "$PACKAGES_PATH/sha.js" >> $OUTPUT_PATH/$NAME.bundle.js
 cat "$PACKAGES_PATH/srp.js" >> $OUTPUT_PATH/$NAME.bundle.js
-cat "$PACKAGES_PATH/accounts-password.js" >> $OUTPUT_PATH/$NAME.bundle.js
+cat "$PACKAGES_PATH/accounts-facebook.js" >> $OUTPUT_PATH/$NAME.bundle.js
 cat "$PACKAGES_PATH/global-imports.js" >> $OUTPUT_PATH/$NAME.bundle.js
 
 # Minify
