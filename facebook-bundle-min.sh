@@ -39,14 +39,12 @@ rm -rf $OUTPUT_PATH
 mkdir $OUTPUT_PATH
 
 # Concat files
-# cat "$PACKAGES_PATH/meteor.js" >> $OUTPUT_PATH/$NAME.bundle.js
 cat "$PACKAGES_PATH/reactive-var.js" >> $OUTPUT_PATH/$NAME.bundle.js
 cat "$PACKAGES_PATH/observe-sequence.js" >> $OUTPUT_PATH/$NAME.bundle.js
 cat "$PACKAGES_PATH/htmljs.js" >> $OUTPUT_PATH/$NAME.bundle.js
 cat "$PACKAGES_PATH/jquery.js" >> $OUTPUT_PATH/$NAME.bundle.js
 cat "$PACKAGES_PATH/blaze.js" >> $OUTPUT_PATH/$NAME.bundle.js
 cat "$PACKAGES_PATH/spacebars.js" >> $OUTPUT_PATH/$NAME.bundle.js
-cat "$PACKAGES_PATH/random.js" >> $OUTPUT_PATH/$NAME.bundle.js
 cat "$PACKAGES_PATH/templating.js" >> $OUTPUT_PATH/$NAME.bundle.js
 cat "$PACKAGES_PATH/url.js" >> $OUTPUT_PATH/$NAME.bundle.js
 cat "$PACKAGES_PATH/reload.js" >> $OUTPUT_PATH/$NAME.bundle.js
