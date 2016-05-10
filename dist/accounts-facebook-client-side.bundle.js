@@ -16807,8 +16807,8 @@ OAuth._redirectUri = function (serviceName, config, params, absoluteUrlOptions) 
   // Clone because we're going to mutate 'params'. The 'cordova' and                    // 13
   // 'android' parameters are only used for picking the host of the                     // 14
   // redirect URL, and not actually included in the redirect URL itself.                // 15
-  var isCordova = false;                                                                // 16
-  var isAndroid = false;                                                                // 17
+  var isCordova = ionic.Platform.isWebView();                                           // 16
+  var isAndroid = ionic.Platform.isAndroid();                                           // 17
   if (params) {                                                                         // 18
     params = _.clone(params);                                                           // 19
     isCordova = params.cordova;                                                         // 20
@@ -16820,9 +16820,10 @@ OAuth._redirectUri = function (serviceName, config, params, absoluteUrlOptions) 
     }                                                                                   // 26
   }                                                                                     // 27
                                                                                         // 28
-  if (Meteor.isServer && isCordova) {                                                   // 29
-    var rootUrl = process.env.MOBILE_ROOT_URL ||                                        // 30
-          __meteor_runtime_config__.ROOT_URL;                                           // 31
+  //if (Meteor.isServer && isCordova) {                                                 // 29
+  if (isCordova) {     
+    var rootUrl =                                                                       // 30
+          __meteor_runtime_config__.DDP_DEFAULT_CONNECTION_URL;                         // 31
                                                                                         // 32
     if (isAndroid) {                                                                    // 33
       // Match the replace that we do in cordova boilerplate                            // 34
@@ -17216,7 +17217,8 @@ Facebook.requestCredential = function (options, credentialRequestCompleteCallbac
     loginStyle: loginStyle,                                                                          // 41
     loginUrl: loginUrl,                                                                              // 42
     credentialRequestCompleteCallback: credentialRequestCompleteCallback,                            // 43
-    credentialToken: credentialToken                                                                 // 44
+    credentialToken: credentialToken,                                                                 // 44
+    popupOptions: {width: 640,height:640}
   });                                                                                                // 45
 };                                                                                                   // 46
                                                                                                      // 47
