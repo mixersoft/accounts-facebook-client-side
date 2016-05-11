@@ -1,5 +1,26 @@
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
+// Patch: Meteor.meteor.meteorEnv is not initializing correctly         //
+//  in client-side.bundle                                               //
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
+(function () {
+
+  /* Imports */
+  var Meteor = Package.meteor.Meteor;
+  var meteorEnv = Package.meteor.meteorEnv;
+
+  // BUG: Meteor.isCordova is not set in the client 
+  Meteor.isCordova = ionic.Platform.isWebView();                                           // 16
+  Meteor.isAndroid = ionic.Platform.isAndroid();
+
+  // BUG: Meteor.settings.public is not loading in the client
+  Meteor.settings.public = __meteor_runtime_config__.PUBLIC_SETTINGS
+
+}).call(this);
+
+//////////////////////////////////////////////////////////////////////////
+//                                                                      //
 // This is a generated file. You can view the original                  //
 // source in your browser if your browser supports source maps.         //
 // Source maps are supported by all recent versions of Chrome, Safari,  //
@@ -16807,8 +16828,8 @@ OAuth._redirectUri = function (serviceName, config, params, absoluteUrlOptions) 
   // Clone because we're going to mutate 'params'. The 'cordova' and                    // 13
   // 'android' parameters are only used for picking the host of the                     // 14
   // redirect URL, and not actually included in the redirect URL itself.                // 15
-  var isCordova = ionic.Platform.isWebView();                                           // 16
-  var isAndroid = ionic.Platform.isAndroid();                                           // 17
+  var isCordova = Meteor.isCordova;                                           // 16
+  var isAndroid = Meteor.isAndroid;                                           // 17
   if (params) {                                                                         // 18
     params = _.clone(params);                                                           // 19
     isCordova = params.cordova;                                                         // 20
@@ -17275,7 +17296,37 @@ if (Meteor.isClient) {                                                          
     }                                                                                                  // 9
                                                                                                        // 10
     var credentialRequestCompleteCallback = Accounts.oauth.credentialRequestCompleteHandler(callback);
-    Facebook.requestCredential(options, credentialRequestCompleteCallback);                            // 12
+
+    if (Meteor.isCordova) {
+      var fbLoginSuccess = function (data) {
+        data.cordova = true;
+        Accounts.callLoginMethod({
+          methodArguments: [data],
+          userCallback: callback
+        });
+      }
+
+      // from: packages/mrt:accounts-facebook-cordova/facebook.js
+      if (typeof facebookConnectPlugin != "undefined" && Meteor.settings) {                              // 23
+        facebookConnectPlugin.getLoginStatus(                                                            // 24
+          function (response) {                                                                          // 25
+            if (response.status != "connected") {                                                        // 26
+              facebookConnectPlugin.login(Meteor.settings.public.facebook.permissions,                   // 27
+                  fbLoginSuccess,                                                                        // 28
+                  function (error) { console.log("" + error) }                                           // 29
+              );                                                                                         // 30
+            } else {                                                                                     // 31
+              fbLoginSuccess(response);                                                                  // 32
+            }                                                                                            // 33
+          },                                                                                             // 34
+          function (error) { console.log("" + error) }                                                   // 35
+        );
+      }  
+
+
+    } else {      
+      Facebook.requestCredential(options, credentialRequestCompleteCallback);                            // 12
+    }  
   };                                                                                                   // 13
 } else {                                                                                               // 14
   Accounts.addAutopublishFields({                                                                      // 15

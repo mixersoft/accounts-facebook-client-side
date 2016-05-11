@@ -9,36 +9,52 @@
 
 
 setMeteorRuntime = function(){
-  var label, hostname, port, connect, oauthProxy;
+  var runConfig, hostname, port, connect, settings;
+
+  // copy from Meteor settings.json
+  settings = {
+    "public": {
+      "label": "staging",
+      "facebook": {
+        "permissions": [
+          "public_profile",
+          "email",
+          "user_friends"
+        ]
+      }
+    }
+  };
+
   switch (window.location.hostname) {
     case 'localhost':
-      // for localhost development
-      label = "DEV";
+      runConfig = "DEV";
       hostname = window.location.hostname;
       port = '3333';
+      connect = ['http://', hostname, ':', port, '/'].join('');
       break;
     case 'example.com':
-      // for a hosted server, see mupx for info on server deployment
-      // refer to mup.json:"env" for config
-      label = "BROWSER";
+      runConfig = "BROWSER";
       hostname = window.location.hostname
       port = '3333';
+      connect = ['http://', hostname, ':', port, '/'].join('');
       break;
-    case "":
-      // for running on cordova/device. 
-      // NOT YET WORKING
-      label = "DEVICE";
+    default:
+      if (ionic.Platform.isWebView() == false) {
+        console.error("ERROR: unknown runtime configuration");
+        break;
+      }
+      runConfig = "DEVICE";
       hostname = 'example.com';
       port = '3333';
+      connect = ['http://', hostname, ':', port, '/'].join('');
       break;
   }
 
-  // connect should point to the correct meteor server
-  connect = ['http://', hostname, ':', port, '/'].join('');
 
   window.__meteor_runtime_config__ = angular.extend( {}, window.__meteor_runtime_config__, {
-    LABEL: label,
-    DDP_DEFAULT_CONNECTION_URL: connect
+    LABEL: runConfig,
+    DDP_DEFAULT_CONNECTION_URL: connect,
+    PUBLIC_SETTINGS: settings["public"]
   });
 
   return

@@ -62,3 +62,35 @@ To create a fresh version of `accounts-facebook-client-side.bundle.js` just run 
 
 [meteor-accounts]: https://www.meteor.com/accounts
 [meteor-client-side]: https://github.com/idanwe/meteor-client-side
+
+
+# Steps to install accounts-facebook-cordova
+
+## install phonegap-facebook-plugin
+
+### ionic Project
+git clone https://github.com/jeduan/cordova-plugin-facebook4.git
+ionic plugin remove phonegap-facebook-plugin
+ionic plugin add /path/to/cloned/project/cordova-plugin-facebook4 \
+   --variable APP_ID="AppId" \
+   --variable APP_NAME="AppName"
+*Note:* APP_ID and APP_NAME are applied to xcode project in `[AppName]-info.plist`
+
+## install accounts-facebook-cordova
+
+### on Meteor Server (via mupx deploy)
+- `meteor add mrt:accounts-facebook-cordova`
+- `meteor remove accounts-facebook`
+- add "public" key to ``./meteor/settings-staging.json`
+  - see: https://gist.github.com/jamielob/881e0fe059c0ef0eb36d
+
+### in xcode project
+- add to config.xml
+<allow-navigation href="https://www.facebook.com/v2.2/dialog/oauth" />
+<allow-navigation href="https://m.facebook.com/v2.2/dialog/oauth" />
+
+### Facebook App Settings
+- add `IOS platform` to Facebook App Settings
+  - bundle ID from xcode project: com.example.AppName
+  - single Sign On: YES
+
