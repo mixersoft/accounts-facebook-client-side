@@ -86,8 +86,10 @@ ionic plugin add /path/to/cloned/project/cordova-plugin-facebook4 \
 
 ### in xcode project
 - add to config.xml
+```
 <allow-navigation href="https://www.facebook.com/v2.2/dialog/oauth" />
 <allow-navigation href="https://m.facebook.com/v2.2/dialog/oauth" />
+```
 
 ### Facebook App Settings
 - add `IOS platform` to Facebook App Settings
