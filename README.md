@@ -61,6 +61,22 @@ Add the following to `/path/to/meteor/server/bootstrap.js`
     });
 ```
 
+Patch the Meteor server file: `/path/to/meteor/.meteor/local/build/programs/server/packages/facebook.js`
+```
+responseContent = HTTP.get(
+  "https://graph.facebook.com/v2.2/oauth/access_token", {
+    params: {
+      client_id: config.appId,
+      // at line 83
+-     redirect_uri: OAuth._redirectUri('facebook', config),
++     redirect_uri: OAuth._redirectUri('facebook', config,null,{rootUrl:Meteor.settings.facebook.oauth_redirect_uri}),
+      client_secret: OAuth.openSecret(config.secret),
+      code: query.code
+    }
+  }).content;
+```
+
+
 
 ### Ionic client:
 
@@ -82,6 +98,19 @@ Add JS files to your Ionic project `index.html`:
 <script src="bower_components/accounts-facebook-client-side/dist/meteor-runtime-config.js"></script>
 <script src="bower_components/accounts-facebook-client-side/dist/accounts-facebook-client-side.bundle.js"></script>
 ```
+
+### Facebook App
+
+Click `+ Add Product` under Product Settings and add `Facebook Login`
+
+Add the following redirect URIs
+```
+http://localhost:3000/_oauth/facebook  http://myapp.com/path/to/myapp/_oauth/facebook 
+```
+
+> Note: the hosted *ionic app rootUrl* (e.g. `http://myapp.com/path/to/myapp/`) should match 
+> the value of `oauth_redirect_uri` which you previously added to `/path/to/meteor/settings.json` 
+
 
 
 #### Cordova Plugin:
@@ -138,7 +167,9 @@ Add to `/path/to/meteor/settings.json`
 ## Build
 
 To create a fresh version of `accounts-facebook-client-side.bundle.js`, run `./facebook-bundle-min.sh`
-*Note:* the generated version will NOT include manual source edits to support Facebook login with `cordova-plugin-facebook4`. 
+
+> Note: the generated version will NOT include manual source edits to support Facebook login 
+> with `cordova-plugin-facebook4`. 
 
 [meteor-accounts]: https://www.meteor.com/accounts
 [meteor-client-side]: https://github.com/idanwe/meteor-client-side
