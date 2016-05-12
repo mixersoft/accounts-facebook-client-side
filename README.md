@@ -1,14 +1,44 @@
-# accounts-facebook-client-side
+# accounts-facebook-client-side (with Cordova support)
 
 Use Meteor's [accounts-facebook][meteor-accounts] package with [meteor-client-side][meteor-client-side].
 
+This package was developed to support client-side access to `accounts-facebook` for an angular-meteor project deployed with the ionic CLI. In this configuration, the client-side is NOT being hosted by the the Meteor server.
+
+This package includes Facebook login support for mobile apps using [cordova-plugin-facebook4][cordova-plugin-facebook4] (currently only tested on IOS.)
+
 ## Installation
 
+### Bower:
+```
+cd /path/to/ionic/project
+bower install accounts-facebook-cordova-client-side
+```
 
-### Meteor server:
-`meteor add accounts-base accounts-facebook service-configuration webapp`
+### Meteor Server
+```
+cd /path/to/meteor
+meteor add accounts-base mrt:accounts-facebook-cordova service-configuration webapp
+```
 
-Add the following to your `./server/bootstrap.js`
+
+## Configuration
+
+### Meteor Server
+
+Add to `/path/to/meteor/settings.json`
+```
+{
+  "facebook": {
+    "appId": "[AppId]",
+    "secret": "[AppSecret]",
+    "oauth_redirect_uri": "[ionic app rootUrl]"
+  }
+}
+```
+> the `ionic app rootUrl` is the rootUrl that will be usedfor the oauth redirect_uri.
+> this is the url of the Ionic app (client). e.g. http://localhost:3000/
+
+Add the following to `/path/to/meteor/server/bootstrap.js`
 ```
     // accounts-facebook config
     ServiceConfiguration.configurations.remove({
@@ -32,23 +62,20 @@ Add the following to your `./server/bootstrap.js`
 ```
 
 
-### ionic client:
-`bower install accounts-base-client-side`
-
-`bower install accounts-facebook-client-side` (not sure this works)
-
-Install ionic client manally:
-- copy `/dist/*.js` to your project
+### Ionic client:
 
 Edit `/dist/meteor-runtime-config.js` to point to your meteor server. 
 - Check port setting for localhost, e.g. `meteor run --port 3333 --settings ./settings.json &`
-- use mupx to deploy hosted Meteor server (see https://github.com/arunoda/meteor-up/tree/mupx) and see mup.json:"env"
+- use mupx to deploy a hosted Meteor server (see [Meteor Up X][mupx], and mup.json:"env" for port number)
 
 Copy `_oauth/facebook` folder to your ionic `www` folder.
 - this page is loaded by the facebook oauth redirect_uri, e.g. http://localhost:3000/_oauth/facebook
-- the pages is actually a proxy for the same page on your meteor server (from the accounts-facebook package) to completes the FB login
 
-Add JS files to your ionic project `index.html`:
+> This page is actually a "proxy" for the same page on your Meteor server (included with the `accounts-facebook` package)
+> The Meteor server does the work to exchange the oauth secret for a valid FB accessToken, and passes the token
+> back to the page loaded by the redirect_uri.
+
+Add JS files to your Ionic project `index.html`:
 
 ```
 <script src="bower_components/accounts-base-client-side/dist/accounts-base-client-side.bundle.js"></script>
@@ -56,43 +83,64 @@ Add JS files to your ionic project `index.html`:
 <script src="bower_components/accounts-facebook-client-side/dist/accounts-facebook-client-side.bundle.js"></script>
 ```
 
-## Build
 
-To create a fresh version of `accounts-facebook-client-side.bundle.js` just run `./facebook-bundle-min.sh`
+#### Cordova Plugin:
+> Note: This step is only required for if you need Facebook login from a mobile device.
+> (only tested on IOS)
 
-[meteor-accounts]: https://www.meteor.com/accounts
-[meteor-client-side]: https://github.com/idanwe/meteor-client-side
-
-
-# Steps to install accounts-facebook-cordova
-
-## install phonegap-facebook-plugin
-
-### ionic Project
-git clone https://github.com/jeduan/cordova-plugin-facebook4.git
+##### Install `cordova-plugin-facebook4`
+```
+cd /path/to/ionic/project
+git clone https://github.com/jeduan/cordova-plugin-facebook4.git /path/to/cordova-plugin-facebook4
 ionic plugin remove phonegap-facebook-plugin
-ionic plugin add /path/to/cloned/project/cordova-plugin-facebook4 \
+ionic plugin add /path/to/cordova-plugin-facebook4 \
    --variable APP_ID="AppId" \
    --variable APP_NAME="AppName"
-*Note:* APP_ID and APP_NAME are applied to xcode project in `[AppName]-info.plist`
+```
+> Note: get AppId and AppName from your Facebook App Settings
+> APP_ID and APP_NAME are applied to xcode project in `[AppName]-info.plist`
 
-## install accounts-facebook-cordova
-
-### on Meteor Server (via mupx deploy)
-- `meteor add mrt:accounts-facebook-cordova`
-- `meteor remove accounts-facebook`
-- add "public" key to ``./meteor/settings-staging.json`
-  - see: https://gist.github.com/jamielob/881e0fe059c0ef0eb36d
-
-### in xcode project
-- add to config.xml
+##### Configure IOS redirects
+Add tags to `/path/to/ionic/project/config.xml`
 ```
 <allow-navigation href="https://www.facebook.com/v2.2/dialog/oauth" />
 <allow-navigation href="https://m.facebook.com/v2.2/dialog/oauth" />
 ```
 
-### Facebook App Settings
-- add `IOS platform` to Facebook App Settings
-  - bundle ID from xcode project: com.example.AppName
-  - single Sign On: YES
+##### on Meteor Server 
+> Note: cordova-plugin-facebook4 support has only been tested against a hosted Meteor server (not localhost) 
+> See: [Meteor Up X][mupx] for more details
 
+Add to `/path/to/meteor/settings.json`
+```
+{
+  "public": {
+    "facebook": {
+      "permissions": [
+        "public_profile",
+        "email",
+        "user_friends"
+      ]
+    }
+  }
+}
+```
+> see also: https://gist.github.com/jamielob/881e0fe059c0ef0eb36d
+
+
+##### Facebook App Settings
+- click `+ Add Platform` and add `IOS platform` to Facebook App Settings
+  - bundle ID from xcode project: com.example.AppName
+  - single Sign On: `YES`
+
+
+
+## Build
+
+To create a fresh version of `accounts-facebook-client-side.bundle.js`, run `./facebook-bundle-min.sh`
+*Note:* the generated version will NOT include manual source edits to support Facebook login with `cordova-plugin-facebook4`. 
+
+[meteor-accounts]: https://www.meteor.com/accounts
+[meteor-client-side]: https://github.com/idanwe/meteor-client-side
+[cordova-plugin-facebook4]: https://github.com/jeduan/cordova-plugin-facebook4.git
+[mupx]: https://github.com/arunoda/meteor-up/tree/mupx

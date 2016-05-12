@@ -1,5 +1,5 @@
 {
-  "name": "accounts-facebook-client-side",
+  "name": "accounts-facebook-cordova-.client-side",
   "version": "0.3.2",
   "main": "./dist/accounts-facebook-client-side.bundle.min.js",
   "dependencies": {
@@ -11,11 +11,12 @@
     "Idan Wender <idanwe2@gmail.com>",
     "Michael Lin <michael@snaphappi.com>"
   ],
-  "description": "Use Meteor's accounts-facebook package with meteor-client-side for ionic CLI apps",
+  "description": "Use Meteor's accounts-facebook package with meteor-client-side for ionic CLI apps, includes support for cordova-plugin-facebook4",
   "keywords": [
     "meteor",
     "accounts",
     "facebook",
+    "cordova-plugin",
     "ddp",
     "client",
     "side"
