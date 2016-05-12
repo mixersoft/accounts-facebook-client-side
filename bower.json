@@ -1,16 +1,17 @@
 {
   "name": "accounts-facebook-client-side",
-  "version": "0.3.1",
-  "main": "./dist/accounts-password-client-side.bundle.min.js",
+  "version": "0.1.0",
+  "main": "./dist/accounts-facebook-client-side.bundle.min.js",
   "dependencies": {
     "meteor-client-side": "~0.2.3",
     "accounts-base-client-side": "~0.1.1"
   },
-  "homepage": "https://github.com/idanwe/accounts-facebook-client-side",
+  "homepage": "https://github.com/mixersoft/accounts-facebook-client-side",
   "authors": [
-    "Idan Wender <idanwe2@gmail.com>"
+    "Idan Wender <idanwe2@gmail.com>",
+    "Michael Lin <michael@snaphappi.com>"
   ],
-  "description": "Use Meteor's accounts-facebook package with meteor-client-side",
+  "description": "Use Meteor's accounts-facebook package with meteor-client-side for ionic CLI apps",
   "keywords": [
     "meteor",
     "accounts",
@@ -22,6 +23,9 @@
   "license": "MIT",
   "ignore": [
     "**/.*",
+    ".gitignore",
+    "dist/*-bundler",
+    "dist/*-output",
     "node_modules",
     "bower_components",
     "test",

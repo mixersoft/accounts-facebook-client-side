@@ -62,4 +62,4 @@ npm install uglify-js
 cp $OUTPUT_PATH/$NAME.bundle.* $DIST_PATH
 
 # Cleanup
-# rm -rf $BUNDLER_PATH $OUTPUT_PATH
+rm -rf $BUNDLER_PATH $OUTPUT_PATH
