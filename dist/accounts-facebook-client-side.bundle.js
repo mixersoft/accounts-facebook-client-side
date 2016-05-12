@@ -29,6 +29,8 @@
 //////////////////////////////////////////////////////////////////////////
 
 
+
+
 (function () {
 
 /* Imports */
@@ -17287,7 +17289,8 @@ var Facebook = Package.facebook.Facebook;
                                                                                                        //
 Accounts.oauth.registerService('facebook');                                                            // 1
                                                                                                        // 2
-if (Meteor.isClient) {                                                                                 // 3
+if (Meteor.isClient) { 
+
   Meteor.loginWithFacebook = function(options, callback) {                                             // 4
     // support a callback without options                                                              // 5
     if (! callback && typeof options === "function") {                                                 // 6
@@ -17298,11 +17301,11 @@ if (Meteor.isClient) {                                                          
     var credentialRequestCompleteCallback = Accounts.oauth.credentialRequestCompleteHandler(callback);
 
     if (Meteor.isCordova) {
-      var fbLoginSuccess = function (data) {
+      var fbLoginSuccess = function (data, cb) {
         data.cordova = true;
         Accounts.callLoginMethod({
           methodArguments: [data],
-          userCallback: callback
+          userCallback: cb || callback
         });
       }
 
@@ -17316,13 +17319,25 @@ if (Meteor.isClient) {                                                          
                   function (error) { console.log("" + error) }                                           // 29
               );                                                                                         // 30
             } else {                                                                                     // 31
-              fbLoginSuccess(response);                                                                  // 32
+              fbLoginSuccess(response, function(err){
+                if (err) {
+                  // cordova only:
+                  // if accessToken was changed/cancelled, 
+                  // returns "Internal server error [500]"
+                  // fix: try to login from scratch
+                  facebookConnectPlugin.login(Meteor.settings.public.facebook.permissions,
+                      fbLoginSuccess,
+                      function (error) { console.log("" + error) }
+                  );
+                } else {
+                  callback.apply(this, arguments);
+                }
+              });                                                                                        // 32
             }                                                                                            // 33
           },                                                                                             // 34
           function (error) { console.log("" + error) }                                                   // 35
         );
       }  
-
 
     } else {      
       Facebook.requestCredential(options, credentialRequestCompleteCallback);                            // 12
