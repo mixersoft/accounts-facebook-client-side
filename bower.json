@@ -1,6 +1,6 @@
 {
   "name": "accounts-facebook-client-side",
-  "version": "0.1.0",
+  "version": "0.3.2",
   "main": "./dist/accounts-facebook-client-side.bundle.min.js",
   "dependencies": {
     "meteor-client-side": "~0.2.3",
