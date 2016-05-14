@@ -140,22 +140,6 @@ Add tags to `/path/to/ionic/project/config.xml`
 > Note: cordova-plugin-facebook4 support has only been tested against a hosted Meteor server (not localhost) 
 > See: [Meteor Up X][mupx] for more details
 
-Add to `/path/to/meteor/settings.json`
-```
-{
-  "public": {
-    "facebook": {
-      "permissions": [
-        "public_profile",
-        "email",
-        "user_friends"
-      ]
-    }
-  }
-}
-```
-> see also: https://gist.github.com/jamielob/881e0fe059c0ef0eb36d
-
 
 ##### Facebook App Settings
 - click `+ Add Platform` and add `IOS platform` to Facebook App Settings

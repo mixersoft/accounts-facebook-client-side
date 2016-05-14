@@ -11,20 +11,6 @@
 setMeteorRuntime = function(){
   var runConfig, hostname, port, connect, settings;
 
-  // copy from Meteor settings.json
-  settings = {
-    "public": {
-      "label": "staging",
-      "facebook": {
-        "permissions": [
-          "public_profile",
-          "email",
-          "user_friends"
-        ]
-      }
-    }
-  };
-
   switch (window.location.hostname) {
     case 'localhost':
       runConfig = "DEV";
@@ -50,6 +36,12 @@ setMeteorRuntime = function(){
       break;
   }
 
+  // copy additional settings from Meteor settings.json
+  settings = {
+    "public": {
+      "label": runConfig
+    }
+  };
 
   window.__meteor_runtime_config__ = angular.extend( {}, window.__meteor_runtime_config__, {
     LABEL: runConfig,

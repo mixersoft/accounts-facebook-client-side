@@ -17328,7 +17328,7 @@ if (Meteor.isClient) {
         facebookConnectPlugin.getLoginStatus(                                                            // 24
           function (response) {                                                                          // 25
             if (response.status != "connected") {                                                        // 26
-              facebookConnectPlugin.login(Meteor.settings.public.facebook.permissions,                   // 27
+              facebookConnectPlugin.login(options.requesermissions,                   // 27
                   fbLoginSuccess,                                                                        // 28
                   function (error) { console.log("" + error) }                                           // 29
               );                                                                                         // 30
@@ -17339,7 +17339,7 @@ if (Meteor.isClient) {
                   // if accessToken was changed/cancelled, 
                   // returns "Internal server error [500]"
                   // fix: try to login from scratch
-                  facebookConnectPlugin.login(Meteor.settings.public.facebook.permissions,
+                  facebookConnectPlugin.login(options.requesermissions,
                       fbLoginSuccess,
                       function (error) { console.log("" + error) }
                   );
