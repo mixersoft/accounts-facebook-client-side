@@ -1,5 +1,5 @@
 {
-  "name": "accounts-facebook-cordova-.client-side",
+  "name": "accounts-facebook-cordova-client-side",
   "version": "0.3.2",
   "main": "./dist/accounts-facebook-client-side.bundle.min.js",
   "dependencies": {

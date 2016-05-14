@@ -82,6 +82,7 @@ responseContent = HTTP.get(
 
 Edit `/dist/meteor-runtime-config.js` to point to your meteor server. 
 - Check port setting for localhost, e.g. `meteor run --port 3333 --settings ./settings.json &`
+- Set `oauth_rootUrl` to match the Facebook Login OAuth redirect_uri BEFORE '_oauth/facebook', usually the same as `window.location.href.split('#').shift()`
 - use mupx to deploy a hosted Meteor server (see [Meteor Up X][mupx], and mup.json:"env" for port number)
 
 Copy `_oauth/facebook` folder to your ionic `www` folder.
@@ -139,6 +140,24 @@ Add tags to `/path/to/ionic/project/config.xml`
 ##### on Meteor Server 
 > Note: cordova-plugin-facebook4 support has only been tested against a hosted Meteor server (not localhost) 
 > See: [Meteor Up X][mupx] for more details
+
+Add to `/path/to/meteor/settings.json`
+```
+{
+  "public": {
+    "facebook": {
+      "profileFields": [
+        "name",
+        "first_name",
+        "last_name",
+        "gender",
+        "location"
+      ]
+    }
+  }
+}
+```
+
 
 
 ##### Facebook App Settings

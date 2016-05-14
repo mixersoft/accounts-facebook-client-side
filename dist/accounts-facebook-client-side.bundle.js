@@ -23,12 +23,17 @@
   try {
     rootUrl = Meteor.absoluteUrl.defaultOptions.rootUrl;
     if (!rootUrl) {
+      try {
+        rootUrl = Meteor.settings.public.facebook.oauth_rootUrl;
+      } catch (err) { }
+    }
+    if (!rootUrl) {
       rootUrl = window.location.href.split('#').shift();
-      Meteor.absoluteUrl.defaultOptions.rootUrl = rootUrl;
     }
     if (!rootUrl) {
       throw new Error();
     }
+    Meteor.absoluteUrl.defaultOptions.rootUrl = rootUrl;
   } catch (err) {
     throw new Error("ROOT_URL not set in the client-side environment");
   }
