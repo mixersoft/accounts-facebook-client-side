@@ -14,8 +14,10 @@
   Meteor.isCordova = ionic.Platform.isWebView();                                           // 16
   Meteor.isAndroid = ionic.Platform.isAndroid();
 
-  // BUG: Meteor.settings.public is not loading in the client
-  Meteor.settings.public = __meteor_runtime_config__.PUBLIC_SETTINGS
+  // BUG: Meteor.settings.public is not loading from meteor-client-side.bundle
+  // load manually or by calling
+  // Meteor.methods({'settings.public': function(){return Meteor.settings.public;})
+  Meteor.settings.public = __meteor_runtime_config__.PUBLIC_SETTINGS || {}
 
   // BUG: meteor-client-side does not pass options to Meteor.absoluteUrl()
   // expects ROOT_URL to be set in the client-side environment
@@ -40,6 +42,7 @@
 
 }).call(this);
 
+
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
 // This is a generated file. You can view the original                  //
@@ -48,8 +51,6 @@
 // and Firefox, and by Internet Explorer 11.                            //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-
-
 
 
 (function () {
@@ -16400,12 +16401,20 @@ var pollProviders = function (tryReload, options) {                             
   var remaining = _.clone(providers);                                                      // 144
   var allReady = true;                                                                     // 145
   while (remaining.length) {                                                               // 146
-    var p = remaining.shift();                                                             // 147
-    var status = p.callback(tryReload, options);                                           // 148
-    if (!status[0])                                                                        // 149
-      allReady = false;                                                                    // 150
-    if (status.length > 1 && p.name)                                                       // 151
-      migrationData[p.name] = status[1];                                                   // 152
+    try {
+      var p = remaining.shift();                                                             // 147
+      var status = p.callback(tryReload, options);                                           // 148
+      if (!status[0])                                                                        // 149
+        allReady = false;                                                                    // 150
+      if (status.length > 1 && p.name)                                                       // 151
+        migrationData[p.name] = status[1];                                                   // 152
+    } catch (err) {
+      if (err.message === "Cannot read property 'sanitizeForInObject' of undefined") {
+        continue;
+      } else {
+        throw err;  
+      }
+    }
   };                                                                                       // 153
   if (allReady || options.immediateMigration)                                              // 154
     return migrationData;                                                                  // 155
@@ -16851,12 +16860,12 @@ OAuth._redirectUri = function (serviceName, config, params, absoluteUrlOptions) 
   // Clone because we're going to mutate 'params'. The 'cordova' and                    // 13
   // 'android' parameters are only used for picking the host of the                     // 14
   // redirect URL, and not actually included in the redirect URL itself.                // 15
-  var isCordova = Meteor.isCordova;                                                     // 16
-  var isAndroid = Meteor.isAndroid;                                                     // 17
+  var isCordova = false;                                                                // 16
+  var isAndroid = false;                                                                // 17
   if (params) {                                                                         // 18
     params = _.clone(params);                                                           // 19
-    isCordova = params.cordova;                                                         // 20
-    isAndroid = params.android;                                                         // 21
+  var isCordova = Meteor.isCordova;                                                     // 20
+  var isAndroid = Meteor.isAndroid;                                                     // 21
     delete params.cordova;                                                              // 22
     delete params.android;                                                              // 23
     if (_.isEmpty(params)) {                                                            // 24
@@ -16864,8 +16873,10 @@ OAuth._redirectUri = function (serviceName, config, params, absoluteUrlOptions) 
     }                                                                                   // 26
   }                                                                                     // 27
                                                                                         // 28
-  //if (Meteor.isServer && isCordova) {                                                 // 29
-  if (isCordova) {     
+  if (isCordova) {                                                                      // 29
+    var rootUrl = Meteor.settings.public.facebook.oauth_rootUrl || 
+          process.env.MOBILE_ROOT_URL ||                                                // 30
+          __meteor_runtime_config__.ROOT_URL;                                           // 31
                                                                                         // 32
     if (isAndroid) {                                                                    // 33
       // Match the replace that we do in cordova boilerplate                            // 34
@@ -17259,7 +17270,7 @@ Facebook.requestCredential = function (options, credentialRequestCompleteCallbac
     loginStyle: loginStyle,                                                                          // 41
     loginUrl: loginUrl,                                                                              // 42
     credentialRequestCompleteCallback: credentialRequestCompleteCallback,                            // 43
-    credentialToken: credentialToken,                                                                 // 44
+    credentialToken: credentialToken,                                                                // 44
     popupOptions: {width: 640,height:640}
   });                                                                                                // 45
 };                                                                                                   // 46
@@ -17308,8 +17319,7 @@ var Facebook = Package.facebook.Facebook;
                                                                                                        //
 Accounts.oauth.registerService('facebook');                                                            // 1
                                                                                                        // 2
-if (Meteor.isClient) { 
-
+if (Meteor.isClient) {                                                                                 // 3
   Meteor.loginWithFacebook = function(options, callback) {                                             // 4
     // support a callback without options                                                              // 5
     if (! callback && typeof options === "function") {                                                 // 6
@@ -17318,8 +17328,7 @@ if (Meteor.isClient) {
     }                                                                                                  // 9
                                                                                                        // 10
     var credentialRequestCompleteCallback = Accounts.oauth.credentialRequestCompleteHandler(callback);
-
-    if (Meteor.isCordova) {
+    if (Meteor.isCordova && typeof facebookConnectPlugin != "undefined") {
       var fbLoginSuccess = function (data, cb) {
         data.cordova = true;
         Accounts.callLoginMethod({
@@ -17328,39 +17337,41 @@ if (Meteor.isClient) {
         });
       }
 
+      var requestPermissions = options.requestPermissions || ['public_profile','email','user_friends'];
+
       // from: packages/mrt:accounts-facebook-cordova/facebook.js
-      if (typeof facebookConnectPlugin != "undefined" && Meteor.settings) {                              // 23
-        facebookConnectPlugin.getLoginStatus(                                                            // 24
-          function (response) {                                                                          // 25
-            if (response.status != "connected") {                                                        // 26
-              facebookConnectPlugin.login(options.requestPermissions,                                    // 27
-                  fbLoginSuccess,                                                                        // 28
-                  function (error) { console.log("" + error) }                                           // 29
-              );                                                                                         // 30
-            } else {                                                                                     // 31
+      if (typeof facebookConnectPlugin != "undefined" && Meteor.settings) {                            // 23
+        facebookConnectPlugin.getLoginStatus(                                                          // 24
+          function (response) {                                                                        // 25
+            if (response.status != "connected") {                                                      // 26
+              facebookConnectPlugin.login(requestPermissions,                                          // 27
+                  fbLoginSuccess,                                                                      // 28
+                  function (error) { console.log("" + error) }                                         // 29
+              );                                                                                       // 30
+            } else {                                                                                   // 31
               fbLoginSuccess(response, function(err){
                 if (err) {
                   // cordova only:
                   // if accessToken was changed/cancelled, 
                   // returns "Internal server error [500]"
                   // fix: try to login from scratch
-                  facebookConnectPlugin.login(options.requestPermissions,
+                  facebookConnectPlugin.login(requestPermissions,
                       fbLoginSuccess,
                       function (error) { console.log("" + error) }
                   );
                 } else {
                   callback.apply(this, arguments);
                 }
-              });                                                                                        // 32
-            }                                                                                            // 33
-          },                                                                                             // 34
-          function (error) { console.log("" + error) }                                                   // 35
+              });                                                                                      // 32
+            }                                                                                          // 33
+          },                                                                                           // 34
+          function (error) { console.log("" + error) }                                                 // 35
         );
       }  
 
     } else {      
-      Facebook.requestCredential(options, credentialRequestCompleteCallback);                            // 12
-    }  
+      Facebook.requestCredential(options, credentialRequestCompleteCallback);                          // 12
+    }    
   };                                                                                                   // 13
 } else {                                                                                               // 14
   Accounts.addAutopublishFields({                                                                      // 15

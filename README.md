@@ -28,19 +28,48 @@ meteor add accounts-base mrt:accounts-facebook-cordova service-configuration web
 Add to `/path/to/meteor/settings.json`
 ```
 {
+  "public" : {
+    "facebook" : {
+      "oauth_rootUrl": "[OAuth redirect URI]",
+      "profileFields": [
+        "name",
+        "gender",
+        "location"
+      ]
+    }
+  },
   "facebook": {
     "appId": "[AppId]",
-    "secret": "[AppSecret]",
-    "oauth_redirect_uri": "[ionic app rootUrl]"
+    "secret": "[AppSecret]"
   }
 }
 ```
 > the `ionic app rootUrl` is the rootUrl that will be usedfor the oauth redirect_uri.
 > this is the url of the Ionic app (client). e.g. http://localhost:3000/
 
-Add the following to `/path/to/meteor/server/bootstrap.js`
+call the following function from `/path/to/meteor/server/bootstrap.js`
 ```
-    // accounts-facebook config
+  function config_AccountsFacebookClientSide(){
+
+    // configure Facebook OAUTH rootUrl, 
+    // see: Facebook App > Product Settings > Facebook Login > Valid OAuth redirect URIs
+    // only include the rootUrl, i.e. "http:/example.com/" without the "_oauth/facebook"
+    var oauth_redirect_uri, oauth_rootUrl;
+    oauth_redirect_uri = Meteor.settings.public.facebook.oauth_rootUrl || "[OAuth redirect URI]";
+    oauth_rootUrl = oauth_redirect_uri.replace('_oauth/facebook','');
+    Meteor.settings.public.facebook["oauth_rootUrl"] = oauth_rootUrl;
+
+    // make Meteor.settings.public available to client-side
+    Meteor.methods({
+      'settings.public': function() {
+        if (Meteor.isClient) {
+          return;
+        }
+        return Meteor.settings["public"];
+      }
+    });
+
+    // config accounts-facebook
     ServiceConfiguration.configurations.remove({
       service: "facebook"
     });
@@ -49,16 +78,18 @@ Add the following to `/path/to/meteor/server/bootstrap.js`
     }, {
       $set: {
         appId: Meteor.settings.facebook.appId,
-        loginStyle: "popup",
-        secret: Meteor.settings.facebook.secret
+        secret: Meteor.settings.facebook.secret,
+        loginStyle: "popup"
       }
     });
 
-    // to fix CORS restriction from client proxy
+    // config oauthProxy to allow CORS from client
     WebApp.rawConnectHandlers.use("/_oauth", function(req, res, next) {
       res.setHeader("Access-Control-Allow-Origin", "*");
       return next();
     });
+
+  }
 ```
 
 Patch the Meteor server file: `/path/to/meteor/.meteor/local/build/programs/server/packages/facebook.js`
@@ -69,7 +100,7 @@ responseContent = HTTP.get(
       client_id: config.appId,
       // at line 83
 -     redirect_uri: OAuth._redirectUri('facebook', config),
-+     redirect_uri: OAuth._redirectUri('facebook', config,null,{rootUrl:Meteor.settings.facebook.oauth_redirect_uri}),
++     redirect_uri: OAuth._redirectUri('facebook', config,null,{rootUrl:Meteor.settings.public.facebook.oauth_rootUrl}),
       client_secret: OAuth.openSecret(config.secret),
       code: query.code
     }
@@ -141,7 +172,7 @@ Add tags to `/path/to/ionic/project/config.xml`
 > Note: cordova-plugin-facebook4 support has only been tested against a hosted Meteor server (not localhost) 
 > See: [Meteor Up X][mupx] for more details
 
-Add to `/path/to/meteor/settings.json`
+Add to `/path/to/meteor/settings.json` for `accounts-facebook-cordova4` plugin
 ```
 {
   "public": {
@@ -166,13 +197,13 @@ Add to `/path/to/meteor/settings.json`
   - single Sign On: `YES`
 
 
-
 ## Build
 
 To create a fresh version of `accounts-facebook-client-side.bundle.js`, run `./facebook-bundle-min.sh`
 
 > Note: the generated version will NOT include manual source edits to support Facebook login 
-> with `cordova-plugin-facebook4`. 
+> with `cordova-plugin-facebook4`. See the Diff between `accounts-facebook-client-side.bundle.js` 
+> and `accounts-facebook-client-side.bundle.0.js` to manually patch
 
 [meteor-accounts]: https://www.meteor.com/accounts
 [meteor-client-side]: https://github.com/idanwe/meteor-client-side
