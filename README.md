@@ -24,13 +24,25 @@ meteor add accounts-base mrt:accounts-facebook-cordova service-configuration web
 ## Configuration
 
 ### Meteor Server
+> the `ionic app rootUrl` is the rootUrl that will be used for the oauth redirect_uri.
+> this is the url of the Ionic app (client). e.g. http://localhost:3000/
+
+1. Configure your Facebook OAuth redirect URI for your Facebook app, see: `Facebook App > Product Settings > Facebook Login > Valid OAuth redirect URIs`
+1. determine your `OAUTH_ROOTURL`
+
+```
+// example
+oauth_redirect_uri = "http://example.com/_oauth/facebook";
+OAUTH_ROOTURL = oauth_redirect_uri.replace('_oauth/facebook','');
+```
+
 
 Add to `/path/to/meteor/settings.json`
 ```
 {
   "public" : {
     "facebook" : {
-      "oauth_rootUrl": "[OAuth redirect URI]",
+      "oauth_rootUrl": "[OAUTH_ROOTURL]",
       "profileFields": [
         "name",
         "gender",
@@ -44,20 +56,29 @@ Add to `/path/to/meteor/settings.json`
   }
 }
 ```
-> the `ionic app rootUrl` is the rootUrl that will be usedfor the oauth redirect_uri.
-> this is the url of the Ionic app (client). e.g. http://localhost:3000/
+
 
 call the following function from `/path/to/meteor/server/bootstrap.js`
 ```
   function config_AccountsFacebookClientSide(){
 
-    // configure Facebook OAUTH rootUrl, 
-    // see: Facebook App > Product Settings > Facebook Login > Valid OAuth redirect URIs
     // only include the rootUrl, i.e. "http:/example.com/" without the "_oauth/facebook"
-    var oauth_redirect_uri, oauth_rootUrl;
-    oauth_redirect_uri = Meteor.settings.public.facebook.oauth_rootUrl || "[OAuth redirect URI]";
-    oauth_rootUrl = oauth_redirect_uri.replace('_oauth/facebook','');
+    var oauth_rootUrl;
+    oauth_rootUrl = Meteor.settings.public.facebook.oauth_rootUrl || "[OAUTH_ROOTURL]";
     Meteor.settings.public.facebook["oauth_rootUrl"] = oauth_rootUrl;
+
+
+    if (Meteor.isServer) {
+      /* NOTE: server/packages/facebook.js calls:
+       *   OAuth._redirectUri('facebook', config)
+       *   -> Meteor.absoluteUrl('_oauth/' + serviceName, absoluteUrlOptions)
+       * without setting absoluteUrlOptions
+       * Instead of hacking the package, you can set ROOT_URL manually for the server:
+       */
+
+      __meteor_runtime_config__.ROOT_URL = oauth_rootUrl;
+      Meteor.absoluteUrl.defaultOptions.rootUrl = oauth_rootUrl;
+    }
 
     // make Meteor.settings.public available to client-side
     Meteor.methods({
@@ -90,21 +111,6 @@ call the following function from `/path/to/meteor/server/bootstrap.js`
     });
 
   }
-```
-
-Patch the Meteor server file: `/path/to/meteor/.meteor/local/build/programs/server/packages/facebook.js`
-```
-responseContent = HTTP.get(
-  "https://graph.facebook.com/v2.2/oauth/access_token", {
-    params: {
-      client_id: config.appId,
-      // at line 83
--     redirect_uri: OAuth._redirectUri('facebook', config),
-+     redirect_uri: OAuth._redirectUri('facebook', config,null,{rootUrl:Meteor.settings.public.facebook.oauth_rootUrl}),
-      client_secret: OAuth.openSecret(config.secret),
-      code: query.code
-    }
-  }).content;
 ```
 
 

@@ -10,14 +10,23 @@
   var Meteor = Package.meteor.Meteor;
   var meteorEnv = Package.meteor.meteorEnv;
 
-  // BUG: Meteor.isCordova is not set in the client 
+  // BUG: Meteor.isCordova is not set in the client
   Meteor.isCordova = ionic.Platform.isWebView();                                           // 16
   Meteor.isAndroid = ionic.Platform.isAndroid();
 
   // BUG: Meteor.settings.public is not loading from meteor-client-side.bundle
   // load manually or by calling
   // Meteor.methods({'settings.public': function(){return Meteor.settings.public;})
-  Meteor.settings.public = __meteor_runtime_config__.PUBLIC_SETTINGS || {}
+  Meteor.call( 'settings.public', function(err,result){
+    if (err) {
+      // this is set in /lib/manual/meteor-runtime-config.js
+      // Meteor.settings.public = __meteor_runtime_config__.PUBLIC_SETTINGS || {};
+      return;
+    }
+    Meteor.settings["public"] = _.extend({}, Meteor.settings["public"], result)
+    return;
+  });
+
 
   // BUG: meteor-client-side does not pass options to Meteor.absoluteUrl()
   // expects ROOT_URL to be set in the client-side environment
@@ -16412,7 +16421,7 @@ var pollProviders = function (tryReload, options) {                             
       if (err.message === "Cannot read property 'sanitizeForInObject' of undefined") {
         continue;
       } else {
-        throw err;  
+        throw err;
       }
     }
   };                                                                                       // 153
@@ -16874,7 +16883,7 @@ OAuth._redirectUri = function (serviceName, config, params, absoluteUrlOptions) 
   }                                                                                     // 27
                                                                                         // 28
   if (isCordova) {                                                                      // 29
-    var rootUrl = Meteor.settings.public.facebook.oauth_rootUrl || 
+    var rootUrl = Meteor.settings.public.facebook.oauth_rootUrl ||
           process.env.MOBILE_ROOT_URL ||                                                // 30
           __meteor_runtime_config__.ROOT_URL;                                           // 31
                                                                                         // 32
@@ -17352,7 +17361,7 @@ if (Meteor.isClient) {                                                          
               fbLoginSuccess(response, function(err){
                 if (err) {
                   // cordova only:
-                  // if accessToken was changed/cancelled, 
+                  // if accessToken was changed/cancelled,
                   // returns "Internal server error [500]"
                   // fix: try to login from scratch
                   facebookConnectPlugin.login(requestPermissions,
@@ -17367,11 +17376,11 @@ if (Meteor.isClient) {                                                          
           },                                                                                           // 34
           function (error) { console.log("" + error) }                                                 // 35
         );
-      }  
+      }
 
-    } else {      
+    } else {
       Facebook.requestCredential(options, credentialRequestCompleteCallback);                          // 12
-    }    
+    }
   };                                                                                                   // 13
 } else {                                                                                               // 14
   Accounts.addAutopublishFields({                                                                      // 15
@@ -17400,4 +17409,3 @@ Package['accounts-facebook'] = {};
 /* Imports for global scope */
 
 Accounts = Package['accounts-base'].Accounts;
-
