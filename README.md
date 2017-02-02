@@ -14,6 +14,12 @@ cd /path/to/ionic/project
 bower install accounts-facebook-cordova-client-side
 ```
 
+### NPM:
+```
+cd /path/to/ionic/project
+npm install accounts-facebook-client-side
+```
+
 ### Meteor Server
 ```
 cd /path/to/meteor
